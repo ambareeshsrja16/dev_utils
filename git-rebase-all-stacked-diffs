@@ -1,0 +1,13 @@
+#! /usr/bin/env bash
+
+set -e
+
+git rebase-stacked
+
+br=$(git first-downstream)
+if [ "x$br" == "xnull" ]; then
+  echo "Done"
+else
+  git co $br
+  exec $0
+fi
