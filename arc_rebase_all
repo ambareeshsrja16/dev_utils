@@ -14,9 +14,9 @@ if [ "x$rebase_upto" == "x$curr_br" ]; then
     exit 0
 fi
 
+arc diff --message=Rebase "$@"
 
 br=$(git first-downstream)
-
 if [ "x$br" == "xnull" ]; then
   echo "Done"
 else
