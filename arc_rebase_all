@@ -14,12 +14,21 @@ if [ "x$rebase_upto" == "x$curr_br" ]; then
     exit 0
 fi
 
-arc diff --message=Rebase "$@"
+if [[ "$*" == *"--update"* ]]; then
+    # extract all arguments other than --update
+    args=$(echo "$@" | sed 's/--update//g' | xargs)
+    # prompt user to enter a string
+    read -p 'Enter Diff ID for "arc diff --update": ' diff_ID
+    # run arc diff --update with diff_ID and all other arguments
+    arc diff --update "$diff_ID" $args
+else
+    arc diff "$@"
+fi
 
 br=$(git first-downstream)
 if [ "x$br" == "xnull" ]; then
   echo "Done"
 else
   git co $br
-  exec $0 $@
+  exec $0 "$@"
 fi
