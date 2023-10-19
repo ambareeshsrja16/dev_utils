@@ -2,10 +2,15 @@
 
 set -e
 
-# Check for --nounit and --nolint arguments
+# Check for --nounit, --nolint, and --message arguments
 skip_unit_and_lint=false
 if [[ "$*" == *"nounit"* ]] && [[ "$*" == *"nolint"* ]]; then
-  skip_unit_and_lint=true
+  if [[ "$*" == *"message"* ]]; then
+    skip_unit_and_lint=true
+  else
+    echo "--message argument is required when both --nounit and --nolint are present."
+    exit 1
+  fi
 fi
 
 # Function for running arc diff with expect
