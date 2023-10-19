@@ -1,0 +1,63 @@
+#!/bin/bash
+
+# your current branch
+curr_branch=$(git symbolic-ref --short HEAD)
+
+while [ ! -z "$curr_branch" ]; do
+    # Gets the upstream branch
+    upstream=$(git rev-parse --abbrev-ref ${curr_branch}@{upstream} 2>/dev/null)
+
+    if [ -z "$upstream" ]; then
+        echo ${curr_branch}
+        break
+    fi
+
+    # Corrected the order of the branches
+    ahead=$(git rev-list --count ${upstream}..${curr_branch} 2>/dev/null)
+    behind=$(git rev-list --count ${curr_branch}..${upstream} 2>/dev/null)
+    
+    output_str=$curr_branch
+    if [ "$ahead" -gt 0 ]; then
+        output_str="$output_str: $ahead ahead"
+    fi
+    if [ "$behind" -gt 0 ]; then
+        output_str="$output_str: $behind behind"
+    fi
+
+    # Print the summary
+    echo ${output_str}
+
+    # Sets the current branch to the upstream branch
+    curr_branch=$upstream
+done
+##!/bin/bash
+
+## your current branch
+#curr_branch=$(git symbolic-ref --short HEAD)
+
+#while [ ! -z "$curr_branch" ]; do
+#   # Gets the upstream branch
+#   upstream=$(git rev-parse --abbrev-ref ${curr_branch}@{upstream} 2>/dev/null)
+
+#   if [ -z "$upstream" ]; then
+#       echo ${curr_branch}
+#       break
+#   fi
+
+#   # Corrected the order of the branches
+#   ahead=$(git rev-list --count ${upstream}..${curr_branch} 2>/dev/null)
+#   behind=$(git rev-list --count ${curr_branch}..${upstream} 2>/dev/null)
+   
+#   output_str=$curr_branch
+#   if [ "$ahead" -gt 0 ]; then
+#       output_str="$output_str: $ahead ahead"
+#   elif [ "$behind" -gt 0 ]; then
+#       output_str="$output_str: $behind behind"
+#   fi
+
+#   # Print the summary
+#   echo ${output_str}
+
+#   # Sets the current branch to the upstream branch
+#   curr_branch=$upstream
+#done
