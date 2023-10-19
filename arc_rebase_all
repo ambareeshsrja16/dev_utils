@@ -2,6 +2,18 @@
 
 set -e
 
+# Check for --nounit and --nolint arguments
+skip_unit_and_lint=false
+if [[ "$*" == *"nounit"* ]] && [[ "$*" == *"nolint"* ]]; then
+  skip_unit_and_lint=true
+fi
+
+# Function for running arc diff with expect
+execute_diff_with_autoreply() {
+  arc_cmd=$1
+  expect -c "spawn $arc_cmd; expect \"Provide explanation for skipping lint: \"; send \"linted\r\"; expect \"Provide explanation for skipping unit tests or press Enter to abort: \"; send \"tested\r\"; interact"
+}
+
 git rebase-stacked
 if [ "x$1" != 'xlocal' ]; then
    arc diff --message=Rebase
@@ -14,31 +26,26 @@ if [ "x$rebase_upto" == "x$curr_br" ]; then
     exit 0
 fi
 
+# Handling the --update argument
 if [[ "$*" == *"update"* ]]; then
-    # extract all arguments other than --update
-    args=$(echo "$@" | sed 's/--update//g' | xargs)
-    # prompt user to enter a string
-    read -p 'Enter Diff ID for "arc diff --update": ' diff_ID
-    # run arc diff --update with diff_ID and all other arguments
-    if [[ "$*" == *"nounit"* && "$*" == *"nolint"* ]]; then
-        arc_cmd="arc diff --update $diff_ID $args"
-        expect -c "spawn $arc_cmd; expect \"Provide explanation for skipping lint: \"; send \"linted\r\"; expect \"Provide explanation for skipping unit tests or press Enter to abort: \"; send \"tested\r\"; interact"
-    else
-        arc diff --update "$diff_ID" $args
-    fi
+  args=$(echo "$@" | sed 's/--update//g' | xargs)
+  read -p 'Enter Diff ID for "arc diff --update": ' diff_ID
+  arc_cmd="arc diff --update $diff_ID $args"
 else
-    if [[ "$*" == *"nounit"* && "$*" == *"nolint"* ]]; then
-        arc_cmd="arc diff $*"
-        expect -c "spawn $arc_cmd; expect \"Provide explanation for skipping lint: \"; send \"linted\r\"; expect \"Provide explanation for skipping unit tests or press Enter to abort: \"; send \"tested\r\"; interact"
-    else
-        arc diff "$@"
-    fi
+  arc_cmd="arc diff $*"
+fi
+
+# Running arc diff with the appropriate mode
+if $skip_unit_and_lint ; then
+  execute_diff_with_autoreply "$arc_cmd"
+else
+  eval $arc_cmd
 fi
 
 br=$(git first-downstream)
 if [ "x$br" == "xnull" ]; then
-    echo "Done"
+  echo "Done"
 else
-    git co $br
-    exec $0 "$@"
+  git co $br
+  exec $0 "$@"
 fi
