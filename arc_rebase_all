@@ -14,21 +14,31 @@ if [ "x$rebase_upto" == "x$curr_br" ]; then
     exit 0
 fi
 
-if [[ "$*" == *"--update"* ]]; then
+if [[ "$*" == *"update"* ]]; then
     # extract all arguments other than --update
     args=$(echo "$@" | sed 's/--update//g' | xargs)
     # prompt user to enter a string
     read -p 'Enter Diff ID for "arc diff --update": ' diff_ID
     # run arc diff --update with diff_ID and all other arguments
-    arc diff --update "$diff_ID" $args
+    if [[ "$*" == *"nounit"* && "$*" == *"nolint"* ]]; then
+        arc_cmd="arc diff --update $diff_ID $args"
+        expect -c "spawn $arc_cmd; expect \"Provide explanation for skipping lint: \"; send \"linted\r\"; expect \"Provide explanation for skipping unit tests or press Enter to abort: \"; send \"tested\r\"; interact"
+    else
+        arc diff --update "$diff_ID" $args
+    fi
 else
-    arc diff "$@"
+    if [[ "$*" == *"nounit"* && "$*" == *"nolint"* ]]; then
+        arc_cmd="arc diff $*"
+        expect -c "spawn $arc_cmd; expect \"Provide explanation for skipping lint: \"; send \"linted\r\"; expect \"Provide explanation for skipping unit tests or press Enter to abort: \"; send \"tested\r\"; interact"
+    else
+        arc diff "$@"
+    fi
 fi
 
 br=$(git first-downstream)
 if [ "x$br" == "xnull" ]; then
-  echo "Done"
+    echo "Done"
 else
-  git co $br
-  exec $0 "$@"
+    git co $br
+    exec $0 "$@"
 fi
