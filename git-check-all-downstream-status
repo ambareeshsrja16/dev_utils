@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+
+current_branch=$(git rev-parse --abbrev-ref HEAD)
+
+while true; do
+  git checkout "$current_branch"
+  
+  while true; do
+    git_diff=$(git diff --stat)
+
+    if [[ -n $git_diff ]]; then
+      # Perform actions when there are changes
+      echo "There are changes."
+      git status
+      echo "After resolving the changes, please press 'y' to re-run this iteration or 'n' to exit: "
+      read -r choice
+
+      if [[ $choice == "y" ]]; then
+        # Add your desired commands or actions to continue
+        echo "Re-running the current iteration..."
+      elif [[ $choice == "n" ]]; then
+        # Add your desired commands or actions to exit
+        echo "Exiting..."
+        exit 0
+      else
+        echo "Invalid input. Please try again."
+      fi
+    else
+      # Perform actions when there are no changes
+      echo "No changes found."
+      break  # Break out of the nested loop
+    fi
+  done
+
+  # Other desired actions for the current iteration here
+
+  downstream=$(git first-downstream)
+  if [[ $downstream == "null" ]]; then
+    # Exit when there are no more downstream branches
+    echo "No more downstream branches."
+    exit 0
+  fi
+
+  current_branch=$downstream
+done
