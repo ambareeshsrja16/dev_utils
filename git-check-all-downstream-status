@@ -2,6 +2,12 @@
 
 current_branch=$(git rev-parse --abbrev-ref HEAD)
 
+restore_vendor_changes=false
+if [[ "$*" == *"restore-vendor-changes"* ]]; then
+  restore_vendor_changes=true
+  VENDOR_DIR="src/go/src/rubrik/vendor"
+fi
+
 while true; do
   git checkout "$current_branch"
   
@@ -12,19 +18,24 @@ while true; do
       # Perform actions when there are changes
       echo "There are changes."
       git status
-      echo "After resolving the changes, please press 'y' to re-run this iteration or 'n' to exit: "
-      read -r choice
-
-      if [[ $choice == "y" ]]; then
-        # Add your desired commands or actions to continue
-        echo "Re-running the current iteration..."
-      elif [[ $choice == "n" ]]; then
-        # Add your desired commands or actions to exit
-        echo "Exiting..."
-        exit 0
+      if $restore_vendor_changes; then
+        echo "Restoring changes to vendor"
+        git restore $VENDOR_DIR
       else
-        echo "Invalid input. Please try again."
-      fi
+        echo "After resolving the changes, please press 'y' to re-run this iteration or 'n' to exit: "
+        read -r choice
+
+        if [[ $choice == "y" ]]; then
+          # Add your desired commands or actions to continue
+          echo "Re-running the current iteration..."
+        elif [[ $choice == "n" ]]; then
+          # Add your desired commands or actions to exit
+          echo "Exiting..."
+          exit 0
+        else
+          echo "Invalid input. Please try again."
+        fi
+      fi 
     else
       # Perform actions when there are no changes
       echo "No changes found."
