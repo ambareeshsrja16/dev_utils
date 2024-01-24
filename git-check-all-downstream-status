@@ -1,7 +1,13 @@
 #!/usr/bin/env bash
 
-current_branch=$(git rev-parse --abbrev-ref HEAD)
+# Usage:
+# git check-all-downstream-status
+#   See changes if any. Resolve them in a different terminal and choose y/n.
+#
+# git check-all-downstream-status --restore-vendor-changes
+#   Automatically remove unintended/unnecessary vendor changes.
 
+current_branch=$(git rev-parse --abbrev-ref HEAD)
 restore_vendor_changes=false
 if [[ "$*" == *"restore-vendor-changes"* ]]; then
   restore_vendor_changes=true
