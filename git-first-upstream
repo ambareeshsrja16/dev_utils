@@ -1,0 +1,4 @@
+#!/bin/bash
+
+git-stack \
+  | jq -r '.UP[0] | if (. | type == "object") then keys[0] else . end'
