@@ -1,25 +1,32 @@
 [user]
-  name = Janmejay Singh
-  email = singh.janmejay@gmail.com
+  name = Ambareesh
+  email = ambareeshsrja16@gmail.com
 [color]
   ui = auto
 [alias]
+  add-remove = !git remove-deleted && git add-untracked
+  add-untracked = !git ls-files -o --exclude-standard | xargs git add -v
+  adog = log --all --decorate --oneline --graph
+  check-all-downstream-status = !git-check-all-downstream-status
   ci = commit
   co = checkout
-  st = status
-  ls = branch -a
   cp = cherry-pick
-  stack = !git-stack
+  delete-branches-with-prompt = !git-delete-branches-with-prompt
   first-downstream = !git-first-downstream
+  first-upstream = !git-first-upstream
+  graft = !git-graft-stack
+  lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --
   local-commits = !git-all-local-commits
+  ls = branch -a
   mark-landed = !git-mark-branch-landed
+  purge = !git clean -fdx
+  rebase-all-stacked-diffs = !git-rebase-all-stacked-diffs
   rebase-stacked = !git-rebase-stacked-diff
   remove-deleted = !git ls-files -d | xargs git rm
-  add-untracked = !git ls-files -o --exclude-standard | xargs git add -v
-  add-remove = !git remove-deleted && git add-untracked
-  purge = !git clean -fdx
-  lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --
-  graft = !git-graft-stack
+  show-upstream = !git branch -vv --list $(git rev-parse --abbrev-ref HEAD)
+  st = status
+  stack = !git-stack
+  stack-ahead-by = !git-stack-ahead-by
 [core]
   editor = emacs -q -nw
   pager = less -F -x4
