@@ -1,0 +1,16 @@
+#! /usr/bin/env bash
+
+# List all local branches.
+for branch in $(git for-each-ref --format '%(refname:short)' refs/heads)
+do
+    # Do not include the current branch.
+    if [ "$branch" != "$(git symbolic-ref --short HEAD)" ]; then
+        echo "$branch"
+        # Ask for user input.
+        read -p "Do you want to delete this branch? [y/N] " delete_branch
+        # Delete if user confirms.
+        if [[ "$delete_branch" =~ ^[Yy] ]]; then
+            git branch -D "$branch"
+        fi
+    fi
+done
