@@ -28,7 +28,7 @@
   stack = !git-stack
   stack-ahead-by = !git-stack-ahead-by
 [core]
-  editor = emacs -q -nw
+  editor = vim
   pager = less -F -x4
 [push]
   default = matching
